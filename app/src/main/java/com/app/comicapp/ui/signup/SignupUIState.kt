@@ -2,7 +2,7 @@ package com.app.comicapp.ui.signup
 
 data class SignupUIState(
     var firstName :String = "",
-    var lastName  :String = "",
+    var username  :String = "",
     var email  :String = "",
     var password  :String = "",
 

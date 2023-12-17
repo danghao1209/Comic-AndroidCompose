@@ -3,10 +3,12 @@ package com.app.comicapp.ui.signup
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.app.comicapp.base.BaseViewModel
 import com.app.comicapp.data.repositories.UserRepository
 import com.app.comicapp.validator.Validator
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
@@ -33,7 +35,7 @@ class SignupViewModel  @Inject constructor(private val userRepository: UserRepos
 
             is SignupUIEvent.LastNameChanged -> {
                 registrationUIState.value = registrationUIState.value.copy(
-                    lastName = event.lastName
+                    username = event.lastName
                 )
                 printState()
             }
@@ -56,7 +58,9 @@ class SignupViewModel  @Inject constructor(private val userRepository: UserRepos
             }
 
             is SignupUIEvent.RegisterButtonClicked -> {
-                //signUp()
+                viewModelScope.launch {
+                    signUp()
+                }
             }
 
 
@@ -66,13 +70,14 @@ class SignupViewModel  @Inject constructor(private val userRepository: UserRepos
     }
 
 
-    suspend fun signUp(username:String, password:String, name:String, email:String) {
+    suspend fun signUp() {
+
         val fNameResult = Validator.validateFirstName(
             fName = registrationUIState.value.firstName
         )
 
         val lNameResult = Validator.validateLastName(
-            lName = registrationUIState.value.lastName
+            lName = registrationUIState.value.username
         )
 
         val emailResult = Validator.validateEmail(
@@ -91,17 +96,20 @@ class SignupViewModel  @Inject constructor(private val userRepository: UserRepos
             passwordError = passwordResult.status,
 
         )
-        userRepository.singup(username,password,name,email)
+        if(fNameResult.status && lNameResult.status && emailResult.status && passwordResult.status) {
+            userRepository.singup(registrationUIState.value.username,registrationUIState.value.password,registrationUIState.value.firstName,registrationUIState.value.email)
+        }
 
     }
 
     private fun validateDataWithRules() {
+
         val fNameResult = Validator.validateFirstName(
             fName = registrationUIState.value.firstName
         )
 
         val lNameResult = Validator.validateLastName(
-            lName = registrationUIState.value.lastName
+            lName = registrationUIState.value.username
         )
 
         val emailResult = Validator.validateEmail(

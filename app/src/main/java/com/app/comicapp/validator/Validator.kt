@@ -14,7 +14,7 @@ object Validator {
 
     fun validateLastName(lName: String): ValidationResult {
         return ValidationResult(
-            (!lName.isNullOrEmpty() && lName.length >= 2)
+            (!lName.isNullOrEmpty() && lName.length >= 6)
         )
     }
 
@@ -26,7 +26,7 @@ object Validator {
 
     fun validatePassword(password: String): ValidationResult {
         return ValidationResult(
-            (!password.isNullOrEmpty() && password.length >= 4)
+            (!password.isNullOrEmpty() && password.length >= 6)
         )
     }
 

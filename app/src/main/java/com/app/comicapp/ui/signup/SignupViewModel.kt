@@ -56,7 +56,7 @@ class SignupViewModel  @Inject constructor(private val userRepository: UserRepos
             }
 
             is SignupUIEvent.RegisterButtonClicked -> {
-                //signUp()
+                signUp()
             }
 
 

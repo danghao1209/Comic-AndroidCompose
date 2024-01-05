@@ -22,6 +22,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,16 +32,20 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import coil.size.Scale
 import com.app.comicapp.R
 import com.app.comicapp.data.entities.ComicAll
+import com.app.comicapp.data.entities.Sub
+import com.app.comicapp.ui.profile.ProfileViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SubcribedItem(){
-    //comic: ComicAll
+fun SubcribedItem(nav:NavController, sub: Sub){
+
     Card(
         shape = RoundedCornerShape(0.dp),
         modifier = Modifier
@@ -57,7 +62,7 @@ fun SubcribedItem(){
         ) {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data("https://c1.staticflickr.com/9/8112/8477434985_5f637b7d84_z.jpg")
+                    .data(sub.thumbImg)
                     .crossfade(true)
                     .scale(Scale.FILL)
                     .build(),
@@ -70,7 +75,7 @@ fun SubcribedItem(){
                 contentScale = ContentScale.Crop
             )
             Text(
-                text = "hihi",
+                text = sub.title,
                 style = MaterialTheme.typography.titleMedium,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
@@ -81,9 +86,14 @@ fun SubcribedItem(){
                 maxLines = 1
             )
             IconButton(
-                modifier = Modifier.size(50.dp).padding(10.dp).fillMaxWidth().align(Alignment.CenterVertically).weight(1f),
+                modifier = Modifier
+                    .size(50.dp)
+                    .padding(10.dp)
+                    .fillMaxWidth()
+                    .align(Alignment.CenterVertically)
+                    .weight(1f),
                 onClick = {
-                    // Thực hiện hành động nào đó
+                    nav.navigate("comic/${sub.id}")
                 }
             ) {
                 Icon(imageVector = Icons.Filled.CheckCircle, modifier = Modifier.size(50.dp), contentDescription = null)

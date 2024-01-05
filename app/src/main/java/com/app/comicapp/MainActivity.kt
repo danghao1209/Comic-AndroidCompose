@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Button
@@ -47,18 +48,23 @@ import com.app.comicapp.navigation.NavigationBarWithScaffold
 import com.app.comicapp.components.mToast
 import com.app.comicapp.ui.chapter.ChapterScreen
 import com.app.comicapp.ui.comic.ComicScreen
+import com.app.comicapp.ui.forgotpass.ForgotPasswordScreen
+import com.app.comicapp.ui.forgotpass.OtpTextFieldScreen
 import com.app.comicapp.ui.home.HomeScreen
 import com.app.comicapp.ui.login.LoginScreen
 import com.app.comicapp.ui.more.MoreScreen
 import com.app.comicapp.ui.original.OriginalsScreen
 import com.app.comicapp.ui.profile.ProfileScreen
 import com.app.comicapp.ui.search.SearchScreen
+import com.app.comicapp.ui.settings.ChangePassScreen
+import com.app.comicapp.ui.settings.SettingsScreen
 import com.app.comicapp.ui.signup.SignUpScreen
 import com.app.comicapp.ui.theme.ComicAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         val tokenModel by viewModels<TokenViewModel>()
         super.onCreate(savedInstanceState)
@@ -71,14 +77,16 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navController = rememberNavController()
-
-                    // Tạo NavHost và cung cấp nó cho NavHostController
                     NavHost(navController = navController, startDestination = "home") {
                         composable(route = "login") {
                             LoginScreen(navController = navController)
                         }
                         composable(route = "signup") { SignUpScreen(navController = navController) }
+                        composable(route = "forgotPass") { ForgotPasswordScreen(navController = navController) }
+                        composable(route = "otp") { OtpTextFieldScreen(navController = navController) }
                         composable(route = "search") { SearchScreen(navController = navController) }
+                        composable(route = "settings") { SettingsScreen(navController = navController) }
+                        composable(route = "changePass") { ChangePassScreen(navController = navController) }
                         composable(route = "home") {
                             NavigationBarWithScaffold(navController = navController) {
                                 HomeScreen(

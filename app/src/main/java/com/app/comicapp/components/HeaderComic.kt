@@ -2,26 +2,23 @@ package com.app.comicapp.components
 
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.CheckCircleOutline
 import androidx.compose.material.icons.outlined.RemoveRedEye
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -29,11 +26,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -44,12 +40,11 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import coil.size.Scale
 import com.app.comicapp.R
-import com.app.comicapp.data.entities.ComicAll
-import com.app.comicapp.data.repositories.UserRepository
+import com.app.comicapp.data.entities.ComicOne
 import com.app.comicapp.ui.comic.ComicViewModel
 
 @Composable
-fun HeaderComic(comic :ComicAll, navController:NavController, comicViewModel:ComicViewModel ){
+fun HeaderComic(comic: ComicOne, navController:NavController, comicViewModel:ComicViewModel ){
     LazyColumn(modifier = Modifier.fillMaxWidth()){
         item { HeaderButton(navController, comicViewModel) }
         item { Content(comic) }
@@ -80,8 +75,17 @@ fun HeaderButton(navController:NavController, comicViewModel:ComicViewModel,){
         }
 
         Row {
-            TextButton(onClick = { /*TODO*/ }) {
-                Text(text = "+Subscribe")
+            TextButton(onClick = {comicViewModel.subscribe() }, Modifier.clickable {
+
+            }) {
+                val isSub = comicViewModel.isSub.observeAsState()
+                if(isSub.value == true){
+                    Icon(imageVector = Icons.Filled.Check, modifier = Modifier.size(50.dp), contentDescription = null)
+                    Text(text = "Subscribed")
+                }
+                else{
+                    Text(text = "+Subscribe")
+                }
             }
             
             
@@ -93,7 +97,7 @@ fun HeaderButton(navController:NavController, comicViewModel:ComicViewModel,){
                     .align(Alignment.CenterVertically),
                 onClick = {
                     try {
-                        comicViewModel.subcribe()
+                        comicViewModel.subscribe()
                     }catch (e:Exception){
                         Log.e("Lỗi sub","sub")
                     }
@@ -178,7 +182,7 @@ fun ViewRate(view:Number, follow:Number, rate:Number){
 
 
 @Composable
-fun Content(comic :ComicAll){
+fun Content(comic: ComicOne){
     Row (modifier = Modifier
         .fillMaxWidth()
         .heightIn(max = 400.dp)
@@ -222,7 +226,12 @@ fun Content(comic :ComicAll){
             .fillMaxWidth()
             ) {
            Surface(
-               modifier = Modifier.border(BorderStroke(2.dp, MaterialTheme.colorScheme.primary), shape = CircleShape).clip(shape = CircleShape),
+               modifier = Modifier
+                   .border(
+                       BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                       shape = CircleShape
+                   )
+                   .clip(shape = CircleShape),
                ) {
                AsyncImage(
                    model = ImageRequest.Builder(LocalContext.current)
@@ -233,7 +242,9 @@ fun Content(comic :ComicAll){
                    contentDescription = null,
                    placeholder = painterResource(id = R.drawable.loading),
                    error = painterResource(id = R.drawable.error),
-                   modifier = Modifier.fillMaxWidth().heightIn(max=150.dp),
+                   modifier = Modifier
+                       .fillMaxWidth()
+                       .heightIn(max = 150.dp),
                    contentScale = ContentScale.Crop,
                )
            }

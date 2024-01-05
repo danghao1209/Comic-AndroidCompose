@@ -1,5 +1,6 @@
 package com.app.comicapp.ui.signup
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.CircularProgressIndicator
@@ -9,11 +10,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -26,10 +29,13 @@ import com.app.comicapp.components.NormalTextComponent
 import com.app.comicapp.R
 import com.app.comicapp.components.ClickableLoginTextComponent
 import com.app.comicapp.components.PasswordTextFieldComponent
+import com.app.comicapp.components.mToast
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun SignUpScreen(signupViewModel: SignupViewModel = hiltViewModel(),navController: NavController) {
-
+    val mContext = LocalContext.current
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -85,14 +91,32 @@ fun SignUpScreen(signupViewModel: SignupViewModel = hiltViewModel(),navControlle
                     errorStatus = signupViewModel.registrationUIState.value.passwordError
                 )
 
-
+                PasswordTextFieldComponent(
+                    labelValue = "RePassword",
+                    painterResource = painterResource(id = R.drawable.ic_lock),
+                    onTextSelected = {
+                        signupViewModel.onEvent(SignupUIEvent.RePasswordChanged(it))
+                    },
+                    errorStatus = signupViewModel.registrationUIState.value.rePasswordError
+                )
 
                 Spacer(modifier = Modifier.height(40.dp))
 
                 ButtonComponent(
                     value = stringResource(id = R.string.register),
                     onButtonClicked = {
-                        signupViewModel.onEvent(SignupUIEvent.RegisterButtonClicked)
+
+                        signupViewModel.viewModelScope.launch {
+                            try {
+                                signupViewModel.onEvent(SignupUIEvent.RegisterButtonClicked)
+                                mToast(mContext,"Đăng ký thành công")
+                                delay(1000)
+                                navController.navigate("login")
+                            }
+                            catch (e:Exception){
+                                mToast(mContext,"Đăng ký Thất bại")
+                            }
+                        }
                     },
                     isEnabled = signupViewModel.allValidationsPassed.value
                 )

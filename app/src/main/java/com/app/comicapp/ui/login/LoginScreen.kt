@@ -37,7 +37,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(loginViewModel: LoginViewModel = hiltViewModel(), tokenViewModel: TokenViewModel= hiltViewModel(), navController: NavController) {
     val mContext = LocalContext.current
@@ -85,7 +84,9 @@ fun LoginScreen(loginViewModel: LoginViewModel = hiltViewModel(), tokenViewModel
                 )
 
                 Spacer(modifier = Modifier.height(40.dp))
-                UnderLinedTextComponent(value = stringResource(id = R.string.forgot_password))
+                UnderLinedTextComponent(value = stringResource(id = R.string.forgot_password), onClick = {
+                    navController.navigate("forgotPass")
+                })
 
                 Spacer(modifier = Modifier.height(40.dp))
 
@@ -128,11 +129,6 @@ fun LoginScreen(loginViewModel: LoginViewModel = hiltViewModel(), tokenViewModel
     }
 
 
-    /*SystemBackButtonHandler {
-        //navController
-    }
-
-     */
 }
 
 

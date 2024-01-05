@@ -7,18 +7,20 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.app.comicapp.base.BaseViewModel
 import com.app.comicapp.data.entities.Chapter
-import com.app.comicapp.data.entities.Comic
-import com.app.comicapp.data.entities.ComicAll
+import com.app.comicapp.data.entities.ComicOne
+import com.app.comicapp.data.entities.CommentsResponse
 import com.app.comicapp.data.repositories.ComicRepository
+import com.app.comicapp.data.repositories.CommentRepository
+import com.app.comicapp.data.repositories.LocalRepository
 import com.app.comicapp.data.repositories.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ComicViewModel @Inject constructor(private val comicRepository: ComicRepository,private val userRepository: UserRepository, savedStateHandle: SavedStateHandle,):BaseViewModel(){
-    private val _comic = MutableLiveData<ComicAll?>()
-    val comic: LiveData<ComicAll?> get() = _comic
+class ComicViewModel @Inject constructor(private val comicRepository: ComicRepository, private val userRepository: UserRepository, private val commentRepository: CommentRepository, private val localRepository: LocalRepository, savedStateHandle: SavedStateHandle,):BaseViewModel(){
+    private val _comic = MutableLiveData<ComicOne?>()
+    val comic: LiveData<ComicOne?> get() = _comic
 
 
     private val _listChapter = MutableLiveData<List<Chapter>?>()
@@ -34,13 +36,31 @@ class ComicViewModel @Inject constructor(private val comicRepository: ComicRepos
     private val _backChapter = MutableLiveData<String?>()
     val backChapter: LiveData<String?> get() = _backChapter
 
+    private val _isSub = MutableLiveData<Boolean?>()
+    val isSub: LiveData<Boolean?> get() = _isSub
+
+    private val _commentText = MutableLiveData<String?>()
+    val commentText: LiveData<String?> get() = _commentText
+
+    private val _listComments = MutableLiveData<CommentsResponse?>()
+    val listComments: LiveData<CommentsResponse?> get() = _listComments
+    fun onCommentTextChanged(text: String) {
+        _commentText.postValue( text)
+        Log.e("comment", commentText.value.toString())
+    }
+
     fun fetchData(comicId:String?){
         Log.e("comic", comicId.toString())
         parentJob = viewModelScope.launch(exceptionHandler){
             isLoading.postValue(true)
-            val newComic = comicRepository.getComic(comicId.toString())
-
+            val token = localRepository.getToken()
+            val newComic = token?.let { comicRepository.getComic(comicId.toString(), it.token) }
             _comic.postValue(newComic)
+            if (newComic != null) {
+                _isSub.postValue(newComic.isSub)
+            };
+            val listComments = token?.let { commentRepository.getComments(comicId.toString(), it.token) }
+            _listComments.postValue(listComments)
             isLoading.postValue(false)
         }
     }
@@ -54,14 +74,34 @@ class ComicViewModel @Inject constructor(private val comicRepository: ComicRepos
             isLoading.postValue(false)
         }
     }
+    fun sendComment(){
+        parentJob = viewModelScope.launch(exceptionHandler){
+            isLoading.postValue(true)
+            val token = localRepository.getToken()
+            val newListChapter =
+                token?.let { comic.value?.let { it1 -> _commentText.value?.let { it2 ->
+                    commentRepository.comment(it.token, it1.id,
+                        it2
+                    )
+                } } }
 
+            _commentText.postValue("")
+            _listComments.postValue(newListChapter)
+            isLoading.postValue(false)
+        }
+    }
 
-    fun subcribe(){
+    fun subscribe(){
         if(comic.value != null){
             parentJob = viewModelScope.launch(exceptionHandler){
                 isLoading.postValue(true)
-                userRepository.subcribe(comic.value!!.id)
-
+                val token = localRepository.getToken()
+                if (token != null) {
+                    val newComic = comicRepository.subscribe(token.token, comic.value!!.id)
+                    if (newComic != null) {
+                        _isSub.postValue(newComic.isSub)
+                    }
+                }
                 isLoading.postValue(false)
             }
         }
@@ -94,4 +134,6 @@ class ComicViewModel @Inject constructor(private val comicRepository: ComicRepos
             isLoading.postValue(false)
         }
     }
+
+
 }

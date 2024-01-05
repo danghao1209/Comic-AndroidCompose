@@ -2,6 +2,7 @@ package com.app.comicapp.di
 
 import com.app.comicapp.common.Config
 import com.app.comicapp.data.apis.author.AuthorApi
+import com.app.comicapp.data.apis.comment.CommentApi
 import com.app.comicapp.data.apis.user.ChapterApi
 import com.app.comicapp.data.apis.user.ComicApi
 import com.app.comicapp.data.apis.user.UserApi
@@ -81,6 +82,10 @@ object NetworkModule {
         return retrofit.create(AuthorApi::class.java)
     }
 
-
+    @Provides
+    @Singleton
+    fun provideCommentApi(@Named("LocalSite") retrofit: Retrofit): CommentApi {
+        return retrofit.create(CommentApi::class.java)
+    }
 
 }

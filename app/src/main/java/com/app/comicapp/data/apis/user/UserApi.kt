@@ -29,8 +29,18 @@ interface UserApi {
     suspend fun signUp(
         @Field("username") username: String,
         @Field("password") password: String,
+        @Field("rePassword") rePassword: String,
         @Field("name") name: String,
         @Field("email") email: String,
+    ): Response<User>
+
+    @FormUrlEncoded
+    @POST("/auth/changepassword")
+    suspend fun changePass(
+        @Field("oldPass") oldPass: String,
+        @Field("newPass") newPass: String,
+        @Field("confirmNewPass") confirmNewPass: String,
+        @Header("Authorization")token :String
     ): Response<User>
 
     @FormUrlEncoded

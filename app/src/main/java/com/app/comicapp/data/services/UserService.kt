@@ -4,6 +4,9 @@ import com.app.comicapp.data.apis.user.ChapterApi
 import com.app.comicapp.data.apis.user.UserApi
 import com.app.comicapp.data.entities.Chapter
 import com.app.comicapp.data.entities.User
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import javax.inject.Inject
 
 class UserService @Inject constructor(private val userApi: UserApi) {
@@ -20,10 +23,13 @@ class UserService @Inject constructor(private val userApi: UserApi) {
             throw Exception(response.message())
         }
     }
-    suspend fun register(username:String, password:String, name:String, email:String): User? {
+    suspend fun register(username:String, password:String, rePassword:String, name:String, email:String): User? {
 
-
-        val response = userApi.signUp(username,password, name,email)
+        fun createPartFromString(value: String): MultipartBody.Part {
+            val requestBody = value.toRequestBody("text/plain".toMediaTypeOrNull())
+            return MultipartBody.Part.createFormData("email", null, requestBody)
+        }
+        val response = userApi.signUp(username,password,rePassword , name,email)
 
         if(response.isSuccessful){
             return response.body()
@@ -52,6 +58,20 @@ class UserService @Inject constructor(private val userApi: UserApi) {
 
 
         val response = userApi.getInfoUser(token)
+
+        if(response.isSuccessful){
+            return response.body()
+        }
+        else{
+
+            throw Exception(response.message())
+        }
+    }
+
+    suspend fun changePass(oldPass:String, newPass:String, confirmNewPass:String,token:String): User? {
+
+
+        val response = userApi.changePass(oldPass,newPass,confirmNewPass,token)
 
         if(response.isSuccessful){
             return response.body()

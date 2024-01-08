@@ -3,6 +3,7 @@ package com.app.comicapp.data.entities
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 data class Comic @RequiresApi(Build.VERSION_CODES.O) constructor(
     @Json(name = "_id")val id: String,
@@ -35,6 +36,33 @@ data class ComicAll @RequiresApi(Build.VERSION_CODES.O) constructor(
     @Json(name = "rate") var rate: Any,
     @Json(name = "genre") var genre: String,
     @Json(name = "comment") var comment: Any,
-    //@Json(name = "comment") var comment: Any,
 )
 
+data class ComicOne @RequiresApi(Build.VERSION_CODES.O) constructor(
+    @Json(name = "_id") var id: String,
+    @Json(name = "title" ) var title: String,
+    @Json(name = "description") var description: String,
+    @Json(name = "thumbImg") var thumbImg: String,
+    @Json(name = "previewImg") var previewImg: List<String>,
+    @Json(name = "chapters") var chapters: List<String>,
+    @Json(name = "rate") var rate: Any,
+    @Json(name = "genre") var genre: String,
+    @Json(name = "comment") var comment: Any,
+    @Json(name = "isSub") var isSub: Boolean,
+)
+
+data class Subscribe @RequiresApi(Build.VERSION_CODES.O) constructor(
+    @Json(name = "data") var isSub: Boolean
+)
+
+@JsonClass(generateAdapter = true)
+data class ListSubComic @RequiresApi(Build.VERSION_CODES.O) constructor(
+    @Json(name = "listSub") val listSub: List<Sub>
+)
+
+@JsonClass(generateAdapter = true)
+data class Sub @RequiresApi(Build.VERSION_CODES.O) constructor(
+    @Json(name = "id") val id: String,
+    @Json(name = "title") val title: String,
+    @Json(name = "thumbImg") val thumbImg: String,
+)

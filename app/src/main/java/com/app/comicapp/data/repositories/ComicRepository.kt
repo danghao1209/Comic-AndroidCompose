@@ -1,10 +1,11 @@
 package com.app.comicapp.data.repositories
 
-import android.util.Log
+import com.app.comicapp.data.database.entities.UserToken
 import com.app.comicapp.data.entities.Chapter
-import com.app.comicapp.data.entities.Comic
 import com.app.comicapp.data.entities.ComicAll
-import com.app.comicapp.data.entities.ComicHome
+import com.app.comicapp.data.entities.ComicOne
+import com.app.comicapp.data.entities.ListSubComic
+import com.app.comicapp.data.entities.Subscribe
 import com.app.comicapp.data.services.ComicService
 import com.app.comicapp.di.IoDispatcher
 import kotlinx.coroutines.CoroutineDispatcher
@@ -17,8 +18,8 @@ class ComicRepository @Inject constructor(
     @IoDispatcher private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
 
-    suspend fun getComic(id:String): ComicAll? = withContext(dispatcher) {
-        comicService.getComic(id)
+    suspend fun getComic(id:String, token:String): ComicOne? = withContext(dispatcher) {
+        comicService.getComic(id, token)
     }
 
 
@@ -50,5 +51,11 @@ class ComicRepository @Inject constructor(
         comicService.search(id)
     }
 
+    suspend fun subscribe(token: String, comicId:String): Subscribe? = withContext(dispatcher) {
+        comicService.subscribe(token, comicId)
+    }
 
+    suspend fun getListSub(token: String): ListSubComic? = withContext(dispatcher) {
+        comicService.getListSub(token)
+    }
 }

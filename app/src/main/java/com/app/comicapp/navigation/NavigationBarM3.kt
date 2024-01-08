@@ -26,7 +26,6 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -38,7 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.app.comicapp.components.ComposableFun
-import com.app.comicapp.data.entities.ComicAll
+import com.app.comicapp.data.entities.ComicOne
 import com.app.comicapp.ui.chapter.ChapterViewModel
 import com.app.comicapp.ui.comic.ComicViewModel
 
@@ -157,7 +156,7 @@ fun ChapterNavigation(navController: NavController, screen: ComposableFun,comicV
 
 
 @Composable
-fun ChapterBarM3(navController: NavController, comic:ComicAll?, nextChapter: String?, preChapter: String?) {
+fun ChapterBarM3(navController: NavController, comic: ComicOne?, nextChapter: String?, preChapter: String?) {
     var selectedItem by remember { mutableStateOf(0) }
 
 

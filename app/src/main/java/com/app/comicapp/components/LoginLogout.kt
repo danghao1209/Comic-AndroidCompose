@@ -362,12 +362,13 @@ fun ClickableLoginTextComponent(tryingToLogin: Boolean = true, onTextSelected: (
 }
 
 @Composable
-fun UnderLinedTextComponent(value: String) {
+fun UnderLinedTextComponent(value: String, onClick: () -> Unit) {
     Text(
         text = value,
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = 40.dp),
+            .heightIn(min = 40.dp)
+            .clickable {onClick()},
         style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary,
         textAlign = TextAlign.Center,
         textDecoration = TextDecoration.Underline

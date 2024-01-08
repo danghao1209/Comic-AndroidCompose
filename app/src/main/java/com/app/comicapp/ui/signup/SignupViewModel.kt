@@ -3,10 +3,15 @@ package com.app.comicapp.ui.signup
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.app.comicapp.base.BaseViewModel
 import com.app.comicapp.data.repositories.UserRepository
 import com.app.comicapp.validator.Validator
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import javax.inject.Inject
 
 
@@ -33,7 +38,7 @@ class SignupViewModel  @Inject constructor(private val userRepository: UserRepos
 
             is SignupUIEvent.LastNameChanged -> {
                 registrationUIState.value = registrationUIState.value.copy(
-                    lastName = event.lastName
+                    username = event.lastName
                 )
                 printState()
             }
@@ -55,8 +60,18 @@ class SignupViewModel  @Inject constructor(private val userRepository: UserRepos
 
             }
 
+            is SignupUIEvent.RePasswordChanged -> {
+                registrationUIState.value = registrationUIState.value.copy(
+                    rePass = event.rePass
+                )
+                printState()
+
+            }
+
             is SignupUIEvent.RegisterButtonClicked -> {
-                signUp()
+                viewModelScope.launch {
+                    signUp()
+                }
             }
 
 
@@ -66,13 +81,14 @@ class SignupViewModel  @Inject constructor(private val userRepository: UserRepos
     }
 
 
-    suspend fun signUp(username:String, password:String, name:String, email:String) {
+    suspend fun signUp() {
+
         val fNameResult = Validator.validateFirstName(
             fName = registrationUIState.value.firstName
         )
 
         val lNameResult = Validator.validateLastName(
-            lName = registrationUIState.value.lastName
+            lName = registrationUIState.value.username
         )
 
         val emailResult = Validator.validateEmail(
@@ -84,24 +100,31 @@ class SignupViewModel  @Inject constructor(private val userRepository: UserRepos
             password = registrationUIState.value.password
         )
 
+        val rePasswordResult = Validator.validatePassword(
+            password = registrationUIState.value.password
+        )
         registrationUIState.value = registrationUIState.value.copy(
             firstNameError = fNameResult.status,
             lastNameError = lNameResult.status,
             emailError = emailResult.status,
             passwordError = passwordResult.status,
-
+            rePasswordError = rePasswordResult.status
         )
-        userRepository.singup(username,password,name,email)
+        if(fNameResult.status && lNameResult.status && emailResult.status && passwordResult.status) {
+
+            userRepository.singup(registrationUIState.value.username,registrationUIState.value.password, registrationUIState.value.rePass,registrationUIState.value.firstName,registrationUIState.value.email)
+        }
 
     }
 
     private fun validateDataWithRules() {
+
         val fNameResult = Validator.validateFirstName(
             fName = registrationUIState.value.firstName
         )
 
         val lNameResult = Validator.validateLastName(
-            lName = registrationUIState.value.lastName
+            lName = registrationUIState.value.username
         )
 
         val emailResult = Validator.validateEmail(
@@ -114,12 +137,6 @@ class SignupViewModel  @Inject constructor(private val userRepository: UserRepos
         )
 
 
-
-        Log.d(TAG, "Inside_validateDataWithRules")
-        Log.d(TAG, "fNameResult= $fNameResult")
-        Log.d(TAG, "lNameResult= $lNameResult")
-        Log.d(TAG, "emailResult= $emailResult")
-        Log.d(TAG, "passwordResult= $passwordResult")
 
         registrationUIState.value = registrationUIState.value.copy(
             firstNameError = fNameResult.status,
@@ -140,29 +157,5 @@ class SignupViewModel  @Inject constructor(private val userRepository: UserRepos
         Log.d(TAG, registrationUIState.value.toString())
     }
 
-
-    /*private fun createUserInFirebase(email: String, password: String) {
-
-        signUpInProgress.value = true
-
-        FirebaseAuth
-            .getInstance()
-            .createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener {
-                Log.d(TAG, "Inside_OnCompleteListener")
-                Log.d(TAG, " isSuccessful = ${it.isSuccessful}")
-
-                signUpInProgress.value = false
-                if (it.isSuccessful) {
-                    PostOfficeAppRouter.navigateTo(Screen.HomeScreen)
-                }
-            }
-            .addOnFailureListener {
-                Log.d(TAG, "Inside_OnFailureListener")
-                Log.d(TAG, "Exception= ${it.message}")
-                Log.d(TAG, "Exception= ${it.localizedMessage}")
-            }
-    }
-    */
 
 }

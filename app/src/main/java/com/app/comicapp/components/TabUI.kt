@@ -12,7 +12,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
+import com.app.comicapp.ui.comment.CommentScreen
 import com.app.comicapp.ui.original.GenerScreen
+import com.app.comicapp.ui.profile.CommentsScreen
+import com.app.comicapp.ui.profile.ProfileViewModel
 import com.app.comicapp.ui.profile.SubcribedScreen
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -26,8 +29,10 @@ sealed class TabItem1(val title:String) {
 
     object Preview : TabItem1(title = "Preview")
 
+    object Comment: TabItem1(title = "Comments")
 
     object Episodes: TabItem1(title = "Episodes")
+
 
 }
 
@@ -110,8 +115,10 @@ fun TabContent(tabs:List<TabItem1>,pagerState: PagerState, navController: NavCon
         if(page ==0){
             PreviewComic(navController = navController)
         }
-
         if(page ==1){
+            CommentScreen(navController = navController)
+        }
+        if(page ==2){
             Episode(navController = navController)
         }
     }
@@ -132,7 +139,7 @@ fun TabContent1(tabs:List<TabItem>,pagerState: PagerState) {
 fun TabComic(navController: NavController) {
 
 
-    val list = listOf(TabItem1.Preview,TabItem1.Episodes)
+    val list = listOf(TabItem1.Preview,TabItem1.Comment,TabItem1.Episodes)
     val pagerState = rememberPagerState(initialPage = 0)
 
 
@@ -143,12 +150,12 @@ fun TabComic(navController: NavController) {
 
 }
 
-sealed class TabProfileItem(val title:String, val screens:ComposableFun) {
+sealed class TabProfileItem(val title:String, val screens:(NavController) -> Unit) {
 
     object Subcribed : TabItem(title = "Subcribed", screens = { SubcribedScreen()})
     object Downloads: TabItem(title = "Downloads", screens ={ SubcribedScreen()})
 
-    object Comments : TabItem(title = "Comments", screens = { SubcribedScreen()})
+    object Comments : TabItem(title = "Comments", screens = { CommentsScreen()})
 
 }
 
@@ -157,13 +164,13 @@ sealed class TabProfileItem(val title:String, val screens:ComposableFun) {
 fun TabProfile() {
 
 
-    val list = listOf(TabProfileItem.Subcribed,TabProfileItem.Downloads,TabProfileItem.Comments)
+    val list = listOf(TabProfileItem.Subcribed,TabProfileItem.Comments)
     val pagerState = rememberPagerState(initialPage = 0)
 
 
     Column(modifier = Modifier.fillMaxSize()) {
         Tabs1(tabs = list, pagerState = pagerState)
-        TabContent1(tabs = list, pagerState = pagerState)
+        TabContent1(tabs = list, pagerState = pagerState )
     }
 
 }
